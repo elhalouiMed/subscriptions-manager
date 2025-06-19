@@ -1,6 +1,8 @@
 # Kafka Subscription Manager Microservice
 
-This project is a backend microservice designed to manage real-time user subscriptions using Kafka and WebSocket. It supports multiple subscription types including event-based, interval-based, sync-based, and request-based mechanisms. The project is written in **Node.js with TypeScript**, leveraging KafkaJS and `ws` libraries for Kafka messaging and WebSocket communication respectively.
+This project is a backend microservice designed to manage real-time user subscriptions using Kafka and WebSocket. It supports multiple subscription types including event-based, interval-based, sync-based, and request-based mechanisms.
+
+The project is written in **Node.js with TypeScript**, leveraging **KafkaJS** and **ws** libraries for Kafka messaging and WebSocket communication respectively.
 
 ---
 
@@ -8,47 +10,51 @@ This project is a backend microservice designed to manage real-time user subscri
 
 * **Kafka Consumer**: Listens to Kafka topics and routes messages based on subscription type.
 * **WebSocket Integration**: Broadcasts messages to a simulated WebSocket server.
-* **Subscription Types Supported**:
+* **Supported Subscription Types**:
 
   * `event`
   * `interval`
   * `sync` (interval + conditional flag)
   * `request` (manual triggers)
-* **Extensible Architecture**: Modular and scalable codebase with clear separation of concerns.
+* **Modular Design**: Cleanly separated architecture using controllers, services, models, and DAO layers.
 
 ---
 
 ## Project Structure
 
-```
+```bash
 subscriptions-manager/
+├── infra/
+│   ├── docker-compose.yml       # Kafka, MongoDB, Zookeeper, Kafka UI
+│   └── data/                    # Volumes for Kafka, MongoDB, Zookeeper
 ├── src/
-│   ├── controllers/              # Route handler logic
+│   ├── controllers/             # Route handler logic
 │   │   └── subscription.controller.ts
 │   ├── services/
-│   │   ├── kafka/                # Kafka consumer/producer logic
+│   │   ├── kafka/               # Kafka consumer/producer logic
 │   │   │   └── kafka.service.ts
-│   │   └── websocket/           # WebSocket server and broadcast logic
+│   │   └── websocket/           # WebSocket logic
 │   │       └── websocket.service.ts
-│   ├── dao/                     # Optional data access layer (e.g., Redis, MongoDB)
-│   │   └── subscription.dao.ts
+│   ├── dao/
+│   │   └── subscription.dao.ts  # MongoDB or data-layer logic
 │   ├── models/
-│   │   ├── schemas/             # TypeScript interfaces and validation schemas
+│   │   ├── schemas/
 │   │   │   └── subscription.schema.ts
-│   │   └── index.ts             # Schema exports
-│   ├── routes/                  # HTTP/WebSocket route definitions
+│   │   └── index.ts
+│   ├── routes/
 │   │   └── subscription.routes.ts
-│   ├── utils/                   # Shared helper functions
+│   ├── utils/
 │   │   └── logger.ts
-│   ├── config.ts                # Environment config loader (dotenv)
-│   ├── index.ts                 # Entry point to start the Express server
+│   ├── config.ts                # Global config (dotenv, env vars, etc.)
+│   ├── index.ts                 # Server entrypoint
 │   └── __tests__/               # Unit tests
-│       └── health.test.ts       # Example unit test for base route
-├── .env                         # Environment variables
-├── README.md                    # Project documentation
-├── tsconfig.json                # TypeScript configuration
-├── package.json                 # Dependencies and scripts
-├── nodemon.json                 # Dev server config (optional)
+│       └── health.test.ts
+├── .env
+├── .gitignore
+├── README.md
+├── tsconfig.json
+├── package.json
+├── nodemon.json
 ```
 
 ---
@@ -58,21 +64,45 @@ subscriptions-manager/
 ### Prerequisites
 
 * Node.js v18+
-* Kafka broker (local or Docker)
+* Docker + Docker Compose V2
 
-### Installation
+### 🔌 Start the Infrastructure
+
+> Start Kafka, Zookeeper, MongoDB, and Kafka UI from `infra/`:
+
+```bash
+cd infra
+docker compose up -d
+```
+
+#### 🛠️ Troubleshooting Kafka Startup
+
+If you get a `InconsistentClusterIdException` error, it means the Kafka broker is trying to rejoin a different ZooKeeper cluster. Clean up volumes and restart:
+
+```bash
+rm -rf data/kafka/*
+rm -rf data/zookeeper/*
+docker compose down
+docker compose up -d
+```
+
+---
+
+### Install Dependencies
 
 ```bash
 npm install
 ```
 
-### Run the Dev Server
+### 🏃 Run the Dev Server
 
 ```bash
 npm run dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000) to see the base project info.
+Visit: [http://localhost:3000](http://localhost:3000)
+
+---
 
 ### Run Unit Tests
 
@@ -105,6 +135,6 @@ npm run test
 
 ---
 
-## 📌 License
+## License
 
-This project is licensed under MIT — feel free to use and modify.
+This project is licensed under the **MIT License** — feel free to use and modify.

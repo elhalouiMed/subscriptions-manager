@@ -39,7 +39,7 @@ services:
   mongo:
     image: mongo:6.0
     ports:
-      - "27018:27017"  # Host:Container
+      - "27018:27017"
     volumes:
       - ./data/mongo:/data/db
     environment:

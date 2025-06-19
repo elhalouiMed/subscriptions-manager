@@ -25,36 +25,37 @@ The project is written in **Node.js with TypeScript**, leveraging **KafkaJS** an
 ```bash
 subscriptions-manager/
 ├── infra/
-│   ├── docker-compose.yml       # Kafka, MongoDB, Zookeeper, Kafka UI
-│   └── data/                    # Volumes for Kafka, MongoDB, Zookeeper
+│   ├── docker-compose.yml         # Docker setup for Kafka, Zookeeper, MongoDB, Kafka UI
+│   └── data/                      # Persistent volumes for Kafka, MongoDB, etc.
 ├── src/
-│   ├── controllers/             # Route handler logic
+│   ├── controllers/              # Route handler logic
 │   │   └── subscription.controller.ts
 │   ├── services/
-│   │   ├── kafka/               # Kafka consumer/producer logic
-│   │   │   └── kafka.service.ts
-│   │   └── websocket/           # WebSocket logic
+│   │   ├── kafka/                # Kafka consumer/producer logic
+│   │   │   ├── kafkaConsumer.ts
+│   │   │   └── kafkaProducer.ts
+│   │   └── websocket/           # WebSocket server and broadcast logic
 │   │       └── websocket.service.ts
-│   ├── dao/
-│   │   └── subscription.dao.ts  # MongoDB or data-layer logic
+│   ├── dao/                     # Optional data access layer (e.g., MongoDB)
+│   │   └── subscription.dao.ts
 │   ├── models/
-│   │   ├── schemas/
+│   │   ├── schemas/             # TypeScript interfaces and validation schemas
 │   │   │   └── subscription.schema.ts
-│   │   └── index.ts
-│   ├── routes/
+│   │   └── index.ts             # Schema exports
+│   ├── routes/                  # HTTP/WebSocket route definitions
 │   │   └── subscription.routes.ts
-│   ├── utils/
+│   ├── utils/                   # Shared helper functions
 │   │   └── logger.ts
-│   ├── config.ts                # Global config (dotenv, env vars, etc.)
-│   ├── index.ts                 # Server entrypoint
+│   ├── config.ts                # Environment config loader (dotenv)
+│   ├── index.ts                 # Entry point to start the Express server
 │   └── __tests__/               # Unit tests
-│       └── health.test.ts
-├── .env
-├── .gitignore
-├── README.md
-├── tsconfig.json
-├── package.json
-├── nodemon.json
+│       └── health.test.ts       # Example unit test for base route
+├── .env                         # Environment variables
+├── README.md                    # Project documentation
+├── tsconfig.json                # TypeScript configuration
+├── package.json                 # Dependencies and scripts
+├── nodemon.json                 # Dev server config (optional)
+.gitignore
 ```
 
 ---

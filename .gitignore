@@ -28,3 +28,5 @@ coverage/
 Thumbs.db
 
 infra/data/
+mock-scheduler/node_modules/
+mock-websocket/node_modules/

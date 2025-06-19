@@ -1,4 +1,3 @@
-// src/services/kafka/kafkaProducer.ts
 import { kafka } from './client';
 
 const producer = kafka.producer();

@@ -1,27 +1,27 @@
-import express from 'express';
-import { config } from './config';
-import { consume } from './services/kafka/kafkaConsumer';
-import { produce } from './services/kafka/kafkaProducer';
+import express from 'express'
+import subscriptionRoutes from './routes/subscriptionRoutes'
+import { config } from './config'
+import { consume } from './services/kafka/kafkaConsumer'
+import { connectDB } from './utils/db'
 
-const app = express();
-const PORT = config.PORT;
-const TOPIC = 'scheduler-events';
+const app = express()
+connectDB()
+const PORT = config.PORT
+const TOPIC = 'scheduler-events'
 
-app.get('/', (_, res) => {
-  res.json({ project: 'Kafka Subscription Manager Microservice' });
-});
+app.use(express.json())
 
-app.listen(PORT, () =>
+app.get('/', (_req, res) => {
+  res.json({ project: config.PROJECT_NAME })
+})
+
+app.use('/subscriptions', subscriptionRoutes)
+
+app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`)
-);
+})
 
-consume(TOPIC, (msg) => {
-  console.log('Consumed:', msg);
-}).catch(err => console.error('Consumer error:', err));
+consume(TOPIC, msg => {
+  console.log('Consumed:', msg)
+}).catch(err => console.error('Consumer error:', err))
 
-setInterval(() => {
-  const payload = { event: 'heartbeat', ts: Date.now() };
-  produce(TOPIC, payload).catch(err =>
-    console.error('Producer error:', err)
-  );
-}, 5_000);

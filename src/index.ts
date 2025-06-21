@@ -3,9 +3,11 @@ import subscriptionRoutes from './routes/subscriptionRoutes'
 import { config } from './config'
 import { consume } from './services/kafka/kafkaConsumer'
 import { connectDB } from './utils/db'
+import { webSocketClient } from './services/websocket/websocketClient'
 
 const app = express()
 connectDB()
+webSocketClient.init()
 const PORT = config.PORT
 const TOPIC = 'scheduler-events'
 

@@ -1,12 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose'
-
-export enum SubscriptionType {
-  Interval      = 'interval',
-  DateTimeBased = 'datetimebased',
-  Event         = 'event',
-  Request       = 'request',
-  Sync          = 'sync',
-}
+import { SubscriptionType } from '../subscription'
 
 export interface ISubscription extends Document {
   subscription: string

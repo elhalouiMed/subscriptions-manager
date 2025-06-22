@@ -1,29 +1,40 @@
-import { kafka } from './client';
-import { config } from '../../config';
+import { kafka } from './client'
+import { config } from '../../config'
+import { logger } from '../..'
 
-const consumer = kafka.consumer({
-  groupId: config.KAFKA_CONSUMER_GROUP,
-});
+const consumer = kafka.consumer({ groupId: config.kafka_consumer_group })
 
-export async function consume<T = string>(
+const parsePayloadHelper = <T>(raw: string): T => {
+  try {
+    return JSON.parse(raw) as T
+  } catch (err) {
+    logger.warn({ raw, err }, 'Non-JSON payload, treating as string')
+    return raw as unknown as T
+  }
+}
+
+export const initConsumer = async <T = unknown>(
   topic: string,
   onMessage: (message: T) => Promise<void> | void
-) {
-  console.log('[Kafka] Consumer connecting…');
-  await consumer.connect();
-  console.log(`[Kafka] Subscribing to topic "${topic}"`);
-  await consumer.subscribe({ topic, fromBeginning: true });
+): Promise<void> => {
+  logger.info('[Kafka] Consumer connecting…')
+  await consumer.connect()
+  logger.info(`[Kafka] Subscribing to topic "${topic}"`)
+  await consumer.subscribe({ topic, fromBeginning: true })
 
   await consumer.run({
-    eachMessage: async ({ message }) => {
-      const raw = message.value?.toString() || '';
-      let payload: T;
+    eachMessage: async ({ topic, partition, message }) => {
+      const rawValue   = message.value?.toString() ?? ''
+      const payload    = parsePayloadHelper<T>(rawValue)
+      const meta       = { topic, partition, offset: message.offset }
+
       try {
-        payload = JSON.parse(raw) as T;
-      } catch {
-        payload = (raw as unknown) as T;
+        await onMessage(payload)
+        logger.debug(meta, 'Successfully processed Kafka message')
+      } catch (error) {
+        logger.error({ ...meta, error, payload }, 'Failed to process Kafka message')
       }
-      onMessage(payload);
-    },
-  });
+    }
+  })
+
 }

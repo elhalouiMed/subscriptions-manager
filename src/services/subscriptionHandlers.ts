@@ -1,4 +1,4 @@
-// src/subscription/handleSubscription.ts
+import pino from 'pino'
 import {
   EventData,
   IntervalData,
@@ -10,6 +10,7 @@ import {
 } from '../models/subscription'
 import { createSubscription } from '../services/subscriptionService'
 import { webSocketClient } from './websocket/websocketClient'
+import { logger } from '..'
 
 export const handleSubscription = async <T extends SubscriptionData>(
   sub: Subscription<T>
@@ -40,6 +41,11 @@ export const handleSubscription = async <T extends SubscriptionData>(
     case SubscriptionType.Request:
       await handleRequestSubscription(subscription, data)
       break
+
+    default:
+      logger.error(
+        `[Subscription] Unknown type "${(data as any).subscription_type}" for "${subscription}"`
+      )
   }
 }
 

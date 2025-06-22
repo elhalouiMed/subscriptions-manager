@@ -1,23 +1,26 @@
-import { kafka } from './client';
+import { kafka } from './client'
+import { logger } from '../..'
 
-const producer = kafka.producer();
+const producer = kafka.producer()
 
-export async function produce<T = any>(
+export const initProducer = async (): Promise<void> => {
+  logger.info('[Kafka] Producer connecting…')
+  await producer.connect()
+  logger.info('[Kafka] Producer connected')
+}
+
+export const produce = async <T = any>(
   topic: string,
   message: T
-) {
-  console.log('[Kafka] Producer connecting…');
-  await producer.connect();
-
+): Promise<void> => {
   const value =
     typeof message === 'string'
       ? message
-      : JSON.stringify(message);
+      : JSON.stringify(message)
 
   await producer.send({
     topic,
     messages: [{ value }],
-  });
-
-  await producer.disconnect();
+  })
 }
+

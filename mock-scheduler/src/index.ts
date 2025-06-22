@@ -25,7 +25,7 @@ const publishRandom = async (): Promise<void> => {
   await producer.send({ topic, messages: [{ value }] })
   console.log(`► published ${sub.subscription} @ ${new Date().toISOString()}`)
 
-  const nextMs = 5_000 + Math.random() * 5_000
+  const nextMs = 1_000 + Math.random() * 1_000
   setTimeout(publishRandom, nextMs)
 }
 

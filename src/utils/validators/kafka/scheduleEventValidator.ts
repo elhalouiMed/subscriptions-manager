@@ -1,7 +1,6 @@
 import Joi from 'joi'
-import { SubscriptionType } from '../models/subscription'
+import { SubscriptionType } from '../../../models/subscription'
 
-// match "YYYY-MM-DD HH:mm:ss.SSS"
 const dateTimePattern = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}$/
 
 const eventDataSchema = Joi.object({

@@ -4,6 +4,8 @@ import { config } from './config'
 import { consume } from './services/kafka/kafkaConsumer'
 import { connectDB } from './utils/db'
 import { webSocketClient } from './services/websocket/websocketClient'
+import { handleSubscription } from './services/subscriptionHandlers'
+import { subscriptionSchema } from './utils/validators'
 
 const app = express()
 connectDB()
@@ -23,7 +25,12 @@ app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`)
 })
 
-consume(TOPIC, msg => {
-  console.log('Consumed:', msg)
-}).catch(err => console.error('Consumer error:', err))
+consume(TOPIC, raw => {
+  const msg = typeof raw === 'string' ? JSON.parse(raw) : raw
+  const { error, value } = subscriptionSchema.validate(msg)
+  if (error) {
+    return console.error('Payload validation failed:', error.message)
+  }
 
+  handleSubscription(value)
+}).catch(err => console.error('Consumer error:', err))

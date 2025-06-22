@@ -1,20 +1,29 @@
-import { EventData, IntervalData, RequestData, Subscription, SubscriptionData, SubscriptionType, SyncData } from "../models/subscription";
-import { webSocketClient } from './websocket/websocketClient';
+// src/subscription/handleSubscription.ts
+import {
+  EventData,
+  IntervalData,
+  RequestData,
+  Subscription,
+  SubscriptionData,
+  SubscriptionType,
+  SyncData
+} from '../models/subscription'
+import { createSubscription } from '../services/subscriptionService'
+import { webSocketClient } from './websocket/websocketClient'
 
-
-export const handleSubscription = <T extends SubscriptionData>(
+export const handleSubscription = async <T extends SubscriptionData>(
   sub: Subscription<T>
-) => {
-  const {subscription, data } = sub;
+): Promise<void> => {
+  const { subscription, data } = sub
 
   switch (data.subscription_type) {
     case SubscriptionType.Event:
-      handleEventSubscription(subscription, data)
-      break;
+      await handleEventSubscription(subscription, data)
+      break
 
     case SubscriptionType.Interval:
-      handleIntervalSubscription(subscription, data);
-      break;
+      await handleIntervalSubscription(subscription, data)
+      break
 
     case SubscriptionType.Sync:
       if (data.available) {
@@ -22,38 +31,61 @@ export const handleSubscription = <T extends SubscriptionData>(
           subscription_type: SubscriptionType.Interval,
           interval: data.interval
         }
-        handleIntervalSubscription(subscription, intervalData)
+        await handleIntervalSubscription(subscription, intervalData)
       } else {
-        handleSyncSubscription(subscription, data)
+        await handleSyncSubscription(subscription, data)
       }
-      break;
+      break
 
     case SubscriptionType.Request:
-      handleRequestSubscription(subscription, data)
-      break;
+      await handleRequestSubscription(subscription, data)
+      break
   }
-};
-
-const handleEventSubscription = (subscription: string, data: EventData) => {
-
-  const dataToWs = {subscription, data}
-  webSocketClient.send(dataToWs)
 }
 
-const handleIntervalSubscription = (subscription: string, data: IntervalData) => {
-
-  const dataToWs = {subscription, data}
-  webSocketClient.send(dataToWs)
+const handleEventSubscription = async (
+  subscription: string,
+  data: EventData
+) => {
+  await createSubscription({
+    subscription,
+    subscription_type: data.subscription_type
+  })
+  webSocketClient.send({ subscription, data })
 }
 
-const handleRequestSubscription = (subscription: string, data: RequestData) => {
-
-  const dataToWs = {subscription, data}
-  webSocketClient.send(dataToWs)
+const handleIntervalSubscription = async (
+  subscription: string,
+  data: IntervalData
+) => {
+  await createSubscription({
+    subscription,
+    subscription_type: data.subscription_type,
+    interval: data.interval
+  })
+  webSocketClient.send({ subscription, data })
 }
 
-const handleSyncSubscription = (subscription: string, data: SyncData) => {
+const handleSyncSubscription = async (
+  subscription: string,
+  data: SyncData
+) => {
+  await createSubscription({
+    subscription,
+    subscription_type: data.subscription_type,
+    interval: data.interval,
+    available: data.available
+  })
+  webSocketClient.send({ subscription, data })
+}
 
-  const dataToWs = {subscription, data}
-  webSocketClient.send(dataToWs)
+const handleRequestSubscription = async (
+  subscription: string,
+  data: RequestData
+) => {
+  await createSubscription({
+    subscription,
+    subscription_type: data.subscription_type
+  })
+  webSocketClient.send({ subscription, data })
 }

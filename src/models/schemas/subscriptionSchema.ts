@@ -16,7 +16,6 @@ const SubscriptionSchema = new Schema<ISubscription>(
     subscription: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
     subscription_type: {

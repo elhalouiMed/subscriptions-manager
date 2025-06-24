@@ -1,22 +1,22 @@
 import { Router } from 'express'
 import {
-  createSubscriptionController,
-  getSubscriptionController,
   listSubscriptionsController,
-  updateSubscriptionController,
-  deleteSubscriptionController
+  subscribeController,
+  unsubscribeController,
+  availabilityController,
+  getSubscriptionController
 } from '../controllers/subscriptionController'
 
 const router = Router()
-
-router.post('/', createSubscriptionController)
 
 router.get('/', listSubscriptionsController)
 
 router.get('/:id', getSubscriptionController)
 
-router.put('/:id', updateSubscriptionController)
+router.post('/subscribe', subscribeController)
 
-router.delete('/:id', deleteSubscriptionController)
+router.delete('/subscribe', unsubscribeController)
+
+router.post('/availability', availabilityController)
 
 export default router

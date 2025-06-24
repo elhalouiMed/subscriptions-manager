@@ -1,10 +1,5 @@
 import { ISubscription, SubscriptionModel } from "../models/schemas/subscriptionSchema"
 
-export const createSubscription = async (
-  data: Partial<ISubscription>
-): Promise<ISubscription> =>
-  SubscriptionModel.create(data)
-
 export const getSubscriptionById = async (
   id: string
 ): Promise<ISubscription | null> =>
@@ -15,16 +10,56 @@ export const listSubscriptions = async (
 ): Promise<ISubscription[]> =>
   SubscriptionModel.find(filter).lean().exec()
 
-export const updateSubscriptionById = async (
-  id: string,
-  update: Partial<ISubscription>
+export const upsertSubscriptionByEventKey = async (
+  eventKey: string,
+  sessionId: string
+): Promise<ISubscription> => {
+  const existing = await SubscriptionModel.findOne({ eventKey }).exec()
+
+  if (!existing) {
+    return SubscriptionModel.create({
+      eventKey,
+      sessionIds: [sessionId]
+    })
+  }
+
+  if (!existing.sessionIds.includes(sessionId)) {
+    existing.sessionIds.push(sessionId)
+    await existing.save()
+  }
+
+  return existing.toObject()
+}
+
+export const removeSessionFromEventKey = async (
+  eventKey: string,
+  sessionId: string
+): Promise<void> => {
+  const existing = await SubscriptionModel.findOne({ eventKey }).exec()
+  if (!existing) return
+
+  existing.sessionIds = existing.sessionIds.filter(id => id !== sessionId)
+
+  if (existing.sessionIds.length === 0) {
+    await existing.deleteOne()
+  } else {
+    await existing.save()
+  }
+}
+
+export const setAvailabilityForEventKey = async (
+  eventKey: string,
+  available: boolean
 ): Promise<ISubscription | null> =>
   SubscriptionModel
-    .findByIdAndUpdate(id, update, { new: true })
+    .findOneAndUpdate({ eventKey }, { available }, { new: true })
     .lean()
     .exec()
 
-export const deleteSubscriptionById = async (
-  id: string
+export const getSubscriptionByEventKey = async (
+  eventKey: string
 ): Promise<ISubscription | null> =>
-  SubscriptionModel.findByIdAndDelete(id).lean().exec()
+  SubscriptionModel
+    .findOne({ eventKey })
+    .lean()
+    .exec()

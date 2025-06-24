@@ -2,17 +2,16 @@ import express, { Request, Response, NextFunction } from 'express'
 import pino from 'pino'
 import subscriptionRoutes from './routes/subscriptionRoutes'
 import { config } from './config'
-import { initConsumer } from './services/kafka/kafkaConsumer'
+import { startConsumers } from './services/kafka/kafkaConsumer'
 import { initProducer } from './services/kafka/kafkaProducer'
 import { connectDB } from './utils/db'
-import { webSocketClient } from './services/websocket/websocketClient'
-import { handleSubscription } from './services/subscriptionHandlers'
-import { subscriptionSchema } from './utils/validators/kafka/scheduleEventValidator'
+import { startWebSocketServer } from './services/websocket/server'
+import { handleAvailabilityToggle, handleMetricsEvent, handleSchedulerTrigger } from './services/kafka/subscriptionCallbacks'
 
 export const logger = pino()
 const app = express()
-const PORT = config.port
-const TOPIC = config.topics.scheduler_events
+const SERVER_PORT = config.server_port
+const WEBSOCKET_PORT = config.websocket_port
 
 app.use(express.json())
 app.use('/subscriptions', subscriptionRoutes)
@@ -28,46 +27,28 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   res.status(status).json({ error: message })
 })
 
-const parseRaw = (raw: string): unknown | null => {
-  try {
-    return JSON.parse(raw)
-  } catch (err) {
-    logger.error({ raw, err }, 'Invalid JSON payload')
-    return null
-  }
-}
-
 const start = async (): Promise<void> => {
   await connectDB()
-  logger.info('MongoDB connected')
 
   await initProducer()
   logger.info('Kafka producer initialized')
 
-  webSocketClient.init()
-  logger.info('WebSocket client initialized')
+  startWebSocketServer()
+  logger.info(`WebSocket server started on ws://<host>:${WEBSOCKET_PORT}`)
 
-  app.listen(PORT, () => {
-    logger.info(`HTTP server listening on http://localhost:${PORT}`)
+  app.listen(SERVER_PORT, () => {
+    logger.info(`HTTP server listening on http://localhost:${SERVER_PORT}`)
   })
 
   try {
-    await initConsumer(TOPIC, async raw => {
-      const msg = typeof raw === 'string' ? parseRaw(raw) : raw
-      if (!msg) return
+    const { metrics_prefix } = config.topics;
+    const metricsRe = new RegExp(`^${metrics_prefix}\\..*`);
+    await startConsumers([
+      { topic: config.topics.scheduler_trigger, onMessage: handleSchedulerTrigger },
+      { topic: config.topics.availability, onMessage: handleAvailabilityToggle },
+      { topic: metricsRe, onMessage: handleMetricsEvent }
+    ])
 
-      const { error, value } = subscriptionSchema.validate(msg)
-      if (error) {
-        logger.error({ error }, 'Payload validation failed')
-        return
-      }
-
-      try {
-        await handleSubscription(value)
-      } catch (handlerErr) {
-        logger.error(handlerErr, 'Subscription handler failed')
-      }
-    })
   } catch (err) {
     logger.error(err, 'Kafka consumer failed to start')
     process.exit(1)

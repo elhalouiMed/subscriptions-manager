@@ -1,0 +1,149 @@
+{
+  "interval_based_subscriptions": [
+    {
+      "id": "95eb0026aadb17034c41c5a7324d249175accca24420dab214827e4bc6b8420b",
+      "payload": {
+        "eventKey": "cpu_usage_monitor",
+        "data": {
+          "description": "Monitors CPU utilization in percentage",
+          "unit": "percent",
+          "metrics": {
+            "currentUsagePercent": 72,
+            "averageUsagePercent": 65
+          }
+        }
+      }
+    },
+    {
+      "id": "ed3c41c690722411e8ab4deeaf287bdb0f7c7435e365471dc664667543aef0ed",
+      "payload": {
+        "eventKey": "memory_usage_tracker",
+        "data": {
+          "description": "Tracks memory usage over time",
+          "unit": "MB",
+          "metrics": {
+            "usedMB": 8124,
+            "freeMB": 2048
+          }
+        }
+      }
+    },
+    {
+      "id": "27c6c0b06e7860c63f83efe888101cdc26015e6f7b487dc5ee9c587680d42989",
+      "payload": {
+        "eventKey": "disk_space_checker",
+        "data": {
+          "description": "Checks available disk space",
+          "unit": "GB",
+          "metrics": {
+            "usedGB": 120,
+            "freeGB": 880
+          }
+        }
+      }
+    }
+  ],
+  "datetime_based_subscriptions": [
+    {
+      "id": "4233911244750cc085646a603662e383242602f144b9c967b133091c9831f3e0",
+      "payload": {
+        "eventKey": "ServerHealthCheck",
+        "data": {
+          "datetime": "2024-07-01 09:00:00.000",
+          "description": "Daily health endpoint ping",
+          "endpoint": "/health",
+          "metrics": {
+            "status": "OK",
+            "responseTimeMs": 123
+          }
+        }
+      }
+    },
+    {
+      "id": "8d02b29b9342e2ac8bf2bdbf91aab8c5bc1f62cda2e69c72f3aa2a044cfd6d6a",
+      "payload": {
+        "eventKey": "DailyTrafficReport",
+        "data": {
+          "datetime": "2024-07-01 18:00:00.000",
+          "description": "Generates traffic analytics report",
+          "reportType": "traffic",
+          "metrics": {
+            "totalRequests": 150000,
+            "uniqueVisitors": 35000
+          }
+        }
+      }
+    }
+  ],
+  "event_based_subscriptions": [
+    {
+      "id": "169c2f3d11e307737a2ff3d39a1926a1dd0b7015cf52852353c6db323d15a273",
+      "payload": {
+        "eventKey": "serverStatus",
+        "data": {
+          "description": "Emits server online/offline events",
+          "severityLevels": ["info", "warning", "critical"],
+          "metrics": {
+            "currentStatus": "online",
+            "downtimeLast24hMinutes": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "dab175d029da3a5c73dd787c43def4e45f9ecb499a6df6661dc2102a318c275f",
+      "payload": {
+        "eventKey": "cpuUsage",
+        "data": {
+          "description": "Emits CPU usage spike events",
+          "threshold": 80,
+          "metrics": {
+            "lastSpikePercent": 85,
+            "occurredAt": "2025-06-23T17:45:00Z"
+          }
+        }
+      }
+    }
+  ],
+  "sync_based_subscriptions": [
+    {
+      "id": "59c980963cdcd32a70b149b75f3a70f30441d0e00ef48e1b85d12140fc386af5",
+      "payload": {
+        "eventKey": "cpu_usage_monitor",
+        "data": {
+          "lastSyncedAt": "2025-06-24T00:00:00Z",
+          "unit": "percent",
+          "metrics": {
+            "syncedValuePercent": 70
+          }
+        }
+      }
+    },
+    {
+      "id": "6d85bd882dfc0ccb759ece61cbfe4daac989b04291687c9e38dd994eea01d636",
+      "payload": {
+        "eventKey": "memory_usage_tracker",
+        "data": {
+          "lastSyncedAt": "2025-06-24T00:00:00Z",
+          "unit": "MB",
+          "metrics": {
+            "syncedUsedMB": 7900
+          }
+        }
+      }
+    },
+    {
+      "id": "c158647d994ac9ac252c6c92c952026f6e00d37af8c6b7477ea3c5c3478bac4c",
+      "payload": {
+        "eventKey": "disk_space_checker",
+        "data": {
+          "lastSyncedAt": "2025-06-24T00:00:00Z",
+          "unit": "GB",
+          "metrics": {
+            "syncedFreeGB": 880
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,16 +1,12 @@
 import {
-  createSubscription as daoCreate,
   getSubscriptionById as daoGet,
   listSubscriptions as daoList,
-  updateSubscriptionById as daoUpdate,
-  deleteSubscriptionById as daoDelete
+  upsertSubscriptionByEventKey as daoUpsert,
+  removeSessionFromEventKey as daoRemoveSession,
+  setAvailabilityForEventKey as daoSetAvailability,
+  getSubscriptionByEventKey as daoGetByEventKey
 } from '../dao/subscriptionDao'
 import { ISubscription } from '../models/schemas/subscriptionSchema'
-
-export const createSubscription = async (
-  data: Partial<ISubscription>
-): Promise<ISubscription> =>
-  daoCreate(data)
 
 export const getSubscription = async (
   id: string
@@ -22,13 +18,25 @@ export const listSubscriptions = async (
 ): Promise<ISubscription[]> =>
   daoList(filter)
 
-export const updateSubscription = async (
-  id: string,
-  update: Partial<ISubscription>
-): Promise<ISubscription | null> =>
-  daoUpdate(id, update)
+export const upsertSubscription = async (
+  eventKey: string,
+  sessionId: string
+): Promise<ISubscription> =>
+  daoUpsert(eventKey, sessionId)
 
-export const deleteSubscription = async (
-  id: string
+export const removeSubscription = async (
+  eventKey: string,
+  sessionId: string
+): Promise<void> =>
+  daoRemoveSession(eventKey, sessionId)
+
+export const setAvailability = async (
+  eventKey: string,
+  available: boolean
 ): Promise<ISubscription | null> =>
-  daoDelete(id)
+  daoSetAvailability(eventKey, available)
+
+export const getSubscriptionByEventKey = async (
+  eventKey: string
+): Promise<ISubscription | null> =>
+  await daoGetByEventKey(eventKey)

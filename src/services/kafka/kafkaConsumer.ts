@@ -4,7 +4,7 @@ import { logger } from '../..'
 
 const consumer = kafka.consumer({ groupId: config.kafka_consumer_group })
 
-const parsePayloadHelper = <T>(raw: string): T => {
+export const parsePayloadHelper = <T>(raw: string): T => {
   try {
     return JSON.parse(raw) as T
   } catch (err) {
@@ -13,28 +13,37 @@ const parsePayloadHelper = <T>(raw: string): T => {
   }
 }
 
-export const initConsumer = async <T = unknown>(
-  topic: string,
-  onMessage: (message: T) => Promise<void> | void
+export const startConsumers = async <T = unknown>(
+  handlers: Array<{
+    topic: string | RegExp
+    onMessage: (message: T, topic: string) => Promise<void> | void
+  }>
 ): Promise<void> => {
   logger.info('[Kafka] Consumer connecting…')
   await consumer.connect()
-  logger.info(`[Kafka] Subscribing to topic "${topic}"`)
-  await consumer.subscribe({ topic, fromBeginning: true })
+
+  for (const { topic } of handlers) {
+    logger.info(`[Kafka] Subscribing to ${topic}`)
+    await consumer.subscribe({ topic, fromBeginning: true })
+  }
 
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
-      const rawValue   = message.value?.toString() ?? ''
-      const payload    = parsePayloadHelper<T>(rawValue)
-      const meta       = { topic, partition, offset: message.offset }
-
+      const raw     = message.value?.toString() ?? ''
+      const payload = parsePayloadHelper<T>(raw)
+      const meta    = { topic, partition, offset: message.offset }
       try {
-        await onMessage(payload)
-        logger.debug(meta, 'Successfully processed Kafka message')
+        for (const { topic: t, onMessage } of handlers) {
+          const matches = typeof t === 'string' ? t === topic : t.test(topic)
+          if (matches) {
+            await onMessage(payload, topic)
+            logger.info(meta, `Handled by ${String(t)}`)
+            break
+          }
+        }
       } catch (error) {
-        logger.error({ ...meta, error, payload }, 'Failed to process Kafka message')
+        logger.error({ ...meta, error, payload }, 'Error in Kafka handler')
       }
     }
   })
-
 }

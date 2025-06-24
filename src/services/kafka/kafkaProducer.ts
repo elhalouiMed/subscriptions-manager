@@ -11,16 +11,19 @@ export const initProducer = async (): Promise<void> => {
 
 export const produce = async <T = any>(
   topic: string,
+  key: string,
   message: T
 ): Promise<void> => {
-  const value =
-    typeof message === 'string'
-      ? message
-      : JSON.stringify(message)
+  const serializedValue =
+    typeof message === 'string' ? message : JSON.stringify(message)
 
   await producer.send({
     topic,
-    messages: [{ value }],
+    messages: [
+      {
+        key,
+        value: serializedValue
+      }
+    ]
   })
 }
-

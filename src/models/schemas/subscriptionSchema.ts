@@ -1,43 +1,19 @@
-import mongoose, { Schema, Document, Model } from 'mongoose'
-import { SubscriptionType } from '../subscription'
+import mongoose, { Schema } from 'mongoose'
 
-export interface ISubscription extends Document {
-  subscription: string
-  subscription_type: SubscriptionType
-  interval?: number
-  datetime?: Date
+export interface ISubscription {
+  eventKey: string
+  sessionIds: string[]
   available?: boolean
   createdAt: Date
   updatedAt: Date
 }
 
-const SubscriptionSchema = new Schema<ISubscription>(
-  {
-    subscription: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    subscription_type: {
-      type: String,
-      required: true,
-      enum: Object.values(SubscriptionType),
-    },
-    interval: {
-      type: Number,
-      min: 1,
-    },
-    datetime: {
-      type: Date,
-    },
-    available: {
-      type: Boolean,
-    },
-  },
-  {
-    timestamps: true,
-  }
-)
+const SubscriptionSchema = new Schema<ISubscription>({
+  eventKey: { type: String, required: true, index: true, unique: true },
+  sessionIds: { type: [String], required: true, default: [] },
+  available: { type: Boolean, default: true },
+}, {
+  timestamps: true
+})
 
-export const SubscriptionModel: Model<ISubscription> =
-  mongoose.model<ISubscription>('Subscription', SubscriptionSchema)
+export const SubscriptionModel = mongoose.model<ISubscription>('Subscription', SubscriptionSchema)

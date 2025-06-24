@@ -9,48 +9,6 @@
 	},
 	"item": [
 		{
-			"name": "fetch subscriptions",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:3000",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000"
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Create Subscription",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n  \"subscription\": \"my-subscription\",\n  \"subscription_type\": \"event\",\n  \"interval\": 60,\n  \"datetime\": \"2025-06-20T10:00:00.000Z\",\n  \"available\": true\n}"
-				},
-				"url": {
-					"raw": "{{base_url}}/subscriptions",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"subscriptions"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "List Subscriptions",
 			"request": {
 				"method": "GET",
@@ -68,66 +26,7 @@
 			"response": []
 		},
 		{
-			"name": "Get Subscription by ID",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/subscriptions/:id",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"subscriptions",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id",
-							"value": "685584bb5a0d8a94c8147ecc",
-							"description": "Replace with subscription _id"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Update Subscription",
-			"request": {
-				"method": "PUT",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n  \"available\": false\n}"
-				},
-				"url": {
-					"raw": "{{base_url}}/subscriptions/:id",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"subscriptions",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id",
-							"value": "",
-							"description": "Replace with subscription _id"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Delete Subscription",
+			"name": "unSubscribe",
 			"request": {
 				"method": "DELETE",
 				"header": [],
@@ -146,6 +45,59 @@
 							"value": "",
 							"description": "Replace with subscription _id"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Subscribe",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "availability",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"eventKey\": \"cpu_usage_monitor\",\n    \"available\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/subscriptions/availability",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"subscriptions",
+						"availability"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "fetch by Id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/subscriptions/6859d7ee95093b8b1435bb41",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"subscriptions",
+						"6859d7ee95093b8b1435bb41"
 					]
 				}
 			},

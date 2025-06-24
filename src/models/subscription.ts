@@ -26,6 +26,3 @@ export interface DateTimeBasedEvent {
   cron: string
 }
 
-export interface Event extends Subscription {}
-
-export interface SyncEvent {}

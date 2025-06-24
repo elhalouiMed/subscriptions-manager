@@ -59,7 +59,9 @@ export const subscribeController: RequestHandler = async (req, res, next) => {
     } else if(sync) { // Sync
       const subscription = await getSubscriptionByEventKey(eventKey)
       const intervalAsCron = intervalMs && msToCron(intervalMs)
-      subscription?.available && await registerTask(eventKey, intervalAsCron)
+      if (subscription?.available) {
+        await registerTask(eventKey, intervalAsCron)
+      }
     } else { // Event
       await registerTask(eventKey)
     }  

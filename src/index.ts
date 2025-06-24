@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from 'express'
+import express, { Request, Response } from 'express'
 import pino from 'pino'
 import subscriptionRoutes from './routes/subscriptionRoutes'
 import { config } from './config'
@@ -20,7 +20,7 @@ app.get('/', (_req: Request, res: Response) => {
   res.json({ project: config.project_name })
 })
 
-app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+app.use((err: unknown, _req: Request, res: Response) => {
   logger.error(err, 'Unhandled error')
   const status = (err as any)?.status || 500
   const message = (err as any)?.message || 'Internal Server Error'

@@ -1,32 +1,21 @@
-import js from "@eslint/js";
-import globals from "globals";
-import tseslint from "typescript-eslint";
-import { defineConfig } from "eslint/config";
+import js from '@eslint/js';
+import jestPlugin from 'eslint-plugin-jest';
 
-export default defineConfig([
-  {
-    files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
-    plugins: { js },
-    extends: ["js/recommended"],
-  },
-  {
-    files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
-    languageOptions: {
-      globals: globals.browser,
-    },
-    ignores: ["node_modules", "dist", "coverage", "infra", "mock-health-monitor"],
-  },
-  ...tseslint.configs.recommended.map((entry, index) => {
-    // Only override the rule in one config layer
-    if (index === tseslint.configs.recommended.length - 1) {
-      return {
-        ...entry,
-        rules: {
-          ...entry.rules,
-          "@typescript-eslint/no-explicit-any": "off",
+export default [
+    js.configs.recommended,
+    {
+        files: ['**/*.test.ts', '**/*.spec.ts'],
+        plugins: {
+            jest: jestPlugin,
         },
-      };
-    }
-    return entry;
-  }),
-]);
+        rules: {
+            // Your Jest-specific rules here
+            'jest/no-disabled-tests': 'warn',
+            'jest/no-focused-tests': 'error',
+            'jest/no-identical-title': 'error',
+            'jest/prefer-to-have-length': 'warn',
+            'jest/valid-expect': 'error',
+        },
+    },
+    // Your other configuration rules
+];

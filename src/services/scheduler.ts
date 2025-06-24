@@ -2,9 +2,8 @@ import { createHash } from 'crypto'
 import { config } from '../config'
 import { produce } from './kafka/kafkaProducer'
 import axios from 'axios'
+import { sha256 } from '../utils/sha256'
 
-const sha256 = (value: string) =>
-  createHash('sha256').update(value).digest('hex')
 
 export const registerTask = async (
   eventKey: string,
@@ -12,7 +11,6 @@ export const registerTask = async (
   payload?: any
 ): Promise<void> => {
   const id = sha256(eventKey)
-  // in my case for the interval, i have no data to publish as payload
   await produce(config.topics.scheduler_register,id, {
     id,
     cron,

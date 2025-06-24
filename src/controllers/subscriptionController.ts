@@ -38,8 +38,6 @@ export const listSubscriptionsController: RequestHandler = async (
   }
 }
 
-
-
 export const subscribeController: RequestHandler = async (req, res, next) => {
   const { error, value } = subscribeSchema.validate(req.body, {
     abortEarly: false

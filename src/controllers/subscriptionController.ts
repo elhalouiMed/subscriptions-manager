@@ -48,11 +48,22 @@ export const subscribeController: RequestHandler = async (req, res, next) => {
   }
   try {
     const { eventKey, sessionId, intervalMs, cron, sync } = value
-    const subscription = await upsertSubscription(eventKey, sessionId)
+
+    const dbSubscription = await getSubscriptionByEventKey(eventKey)
+    if(dbSubscription !== null && (
+      dbSubscription.cron !== cron || 
+        dbSubscription.available !== sync ||
+          dbSubscription.intervalMs !== intervalMs
+    )) {
+        res.status(400).json({"message": "data conflict, cannot subscribe"})
+        return
+    }
+
+    const subscription = await upsertSubscription(eventKey, sessionId, intervalMs, cron, sync)
     if(intervalMs && !sync){ // Interval
       const intervalAsCron = msToCron(intervalMs)
       await registerTask(eventKey, intervalAsCron)
-    } else if(cron) { // DatseTime
+    } else if(cron) { // DateTimeBased
       await registerTask(eventKey, cron)
     } else if(sync) { // Sync
       const subscription = await getSubscriptionByEventKey(eventKey)

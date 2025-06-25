@@ -6,12 +6,16 @@ export interface ISubscription {
   available?: boolean
   createdAt: Date
   updatedAt: Date
+  intervalMs?: number,
+  cron?: string
 }
 
 const SubscriptionSchema = new Schema<ISubscription>({
   eventKey: { type: String, required: true, index: true, unique: true },
   sessionIds: { type: [String], required: true, default: [] },
-  available: { type: Boolean, default: true },
+  intervalMs: { type: Number, required: false},
+  cron: { type: String, required: false },
+  available: { type: Boolean },
 }, {
   timestamps: true
 })

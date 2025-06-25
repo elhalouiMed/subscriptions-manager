@@ -12,14 +12,20 @@ export const listSubscriptions = async (
 
 export const upsertSubscriptionByEventKey = async (
   eventKey: string,
-  sessionId: string
+  sessionId: string,
+  intervalMs?: number,
+  cron?: string,
+  sync?: boolean
 ): Promise<ISubscription> => {
   const existing = await SubscriptionModel.findOne({ eventKey }).exec()
 
   if (!existing) {
     return SubscriptionModel.create({
       eventKey,
-      sessionIds: [sessionId]
+      sessionIds: [sessionId],
+      intervalMs,
+      cron,
+      available: sync
     })
   }
 

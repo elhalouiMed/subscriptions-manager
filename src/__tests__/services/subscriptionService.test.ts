@@ -39,7 +39,7 @@ describe('subscriptionService', () => {
 
     const result = await upsertSubscription('abc', '123')
     expect(result).toEqual(mockResult)
-    expect(mockedDao.upsertSubscriptionByEventKey).toHaveBeenCalledWith('abc', '123')
+    expect(mockedDao.upsertSubscriptionByEventKey).toHaveBeenCalledWith('abc', '123', undefined, undefined, undefined)
   })
 
   it('removeSubscription - calls dao with correct args', async () => {

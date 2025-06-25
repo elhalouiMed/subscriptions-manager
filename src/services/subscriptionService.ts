@@ -20,9 +20,12 @@ export const listSubscriptions = async (
 
 export const upsertSubscription = async (
   eventKey: string,
-  sessionId: string
+  sessionId: string,
+  intervalMs?: number,
+  cron?: string,
+  sync?: boolean 
 ): Promise<ISubscription> =>
-  daoUpsert(eventKey, sessionId)
+  daoUpsert(eventKey, sessionId, intervalMs, cron, sync)
 
 export const removeSubscription = async (
   eventKey: string,

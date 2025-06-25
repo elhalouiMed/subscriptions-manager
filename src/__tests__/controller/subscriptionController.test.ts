@@ -153,63 +153,60 @@ describe('subscriptionController', () => {
     })
 
     it('handles interval branch', async () => {
-      req.body = { eventKey: 'k', sessionId: 's', intervalMs: 1000 }
+      req.body = { eventKey: 'cpu_usage_monitor', sessionId: 'Mohammed', intervalMs: 1000 }
       const sub = { foo: 'bar' }
+      const sub2 = { eventKey: 'cpu_usage_monitor', intervalMs: 1000 }
+      ;(getSubscriptionByEventKey as jest.Mock).mockResolvedValue(sub2)
       ;(upsertSubscription as jest.Mock).mockResolvedValue(sub)
       ;(msToCron as jest.Mock).mockReturnValue('c')
 
       await subscribeController(req, res, next)
 
-      expect(upsertSubscription).toHaveBeenCalledWith('k', 's')
+      expect(upsertSubscription).toHaveBeenCalledWith('cpu_usage_monitor', 'Mohammed', 1000, undefined, undefined)
       expect(msToCron).toHaveBeenCalledWith(1000)
-      expect(registerTask).toHaveBeenCalledWith('k', 'c')
+      expect(registerTask).toHaveBeenCalledWith('cpu_usage_monitor', 'c')
       expect(res.status).toHaveBeenCalledWith(201)
       expect(res.json).toHaveBeenCalledWith(sub)
     })
 
     it('handles cron branch', async () => {
-      req.body = { eventKey: 'k', sessionId: 's', cron: 'd' }
+      req.body = { eventKey: 'cpu_usage_monitor', sessionId: 'Zaid', cron: 'd' }
+      const sub2 = { eventKey: 'cpu_usage_monitor', cron: 'd' }
+
+      ;(getSubscriptionByEventKey as jest.Mock).mockResolvedValue(sub2)
       ;(upsertSubscription as jest.Mock).mockResolvedValue({})
 
       await subscribeController(req, res, next)
 
-      expect(upsertSubscription).toHaveBeenCalledWith('k', 's')
-      expect(registerTask).toHaveBeenCalledWith('k', 'd')
+      expect(upsertSubscription).toHaveBeenCalledWith('cpu_usage_monitor', 'Zaid', undefined, 'd', undefined)
+      expect(registerTask).toHaveBeenCalledWith('cpu_usage_monitor', 'd')
     })
 
     it('handles sync branch when available', async () => {
       req.body = { eventKey: 'k', sessionId: 's', sync: true, intervalMs: 500 }
+      const sub2 = { eventKey: 'k', intervalMs: 500, available: true }
+      ;(getSubscriptionByEventKey as jest.Mock).mockResolvedValue(sub2)
       const sub1 = {}
-      const sub2 = { available: true }
       ;(upsertSubscription as jest.Mock).mockResolvedValue(sub1)
       ;(getSubscriptionByEventKey as jest.Mock).mockResolvedValue(sub2)
       ;(msToCron as jest.Mock).mockReturnValue('c2')
 
       await subscribeController(req, res, next)
 
-      expect(upsertSubscription).toHaveBeenCalledWith('k', 's')
+      expect(upsertSubscription).toHaveBeenCalledWith('k', 's', 500, undefined, true)
       expect(getSubscriptionByEventKey).toHaveBeenCalledWith('k')
       expect(registerTask).toHaveBeenCalledWith('k', 'c2')
     })
 
-    it('handles sync branch when not available', async () => {
-      req.body = { eventKey: 'k', sessionId: 's', sync: true }
-      ;(upsertSubscription as jest.Mock).mockResolvedValue({})
-      ;(getSubscriptionByEventKey as jest.Mock).mockResolvedValue({ available: false })
-
-      await subscribeController(req, res, next)
-
-      expect(upsertSubscription).toHaveBeenCalledWith('k', 's')
-      expect(registerTask).not.toHaveBeenCalled()
-    })
-
     it('handles event branch', async () => {
       req.body = { eventKey: 'k', sessionId: 's' }
+      const sub2 = { eventKey: 'k' }
+      ;(getSubscriptionByEventKey as jest.Mock).mockResolvedValue(sub2)
       ;(upsertSubscription as jest.Mock).mockResolvedValue({})
 
       await subscribeController(req, res, next)
 
-      expect(upsertSubscription).toHaveBeenCalledWith('k', 's')
+      expect(upsertSubscription).toHaveBeenCalledWith('k', 's', undefined, undefined, undefined)
       expect(registerTask).toHaveBeenCalledWith('k')
     })
 

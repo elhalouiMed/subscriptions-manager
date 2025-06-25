@@ -44,10 +44,13 @@ export const handleMetricsEvent = async (
   validateOrThrow<KafkaEvent>(kafkaEventSchema, event)
   const { payload: { eventKey } } = event
   const sub = await getSubscriptionByEventKey(eventKey)
-  if (!sub?.available) return
+  if (sub?.available === false) return
   const msg = { eventKey, event }
-  sub.sessionIds.forEach(sessionId =>
+  sub?.sessionIds.forEach(sessionId =>
     sendToSessions(sessionId, JSON.stringify(msg))
   )
+  if(sub?.available){
+    await setAvailability(eventKey, false)
+  }
 }
 
